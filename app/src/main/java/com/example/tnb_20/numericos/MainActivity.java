@@ -9,6 +9,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +38,11 @@ public class MainActivity extends AppCompatActivity {
         rango = numAleatorio();
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                adivinaNum();
+                try {
+                    adivinaNum();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -57,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
-    public void adivinaNum() {
+    public void adivinaNum() throws IOException {
         final EditText editText = findViewById(R.id.editText);
         String st = String.valueOf(editText.getText());
         int numero = Integer.parseInt(st);
@@ -77,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
             intentos++;
         } else if (numero == rango) {
             jugadores.add(new Jugador(name,intentos));
+            Jugador jug1 = new Jugador(name, intentos);
+            crearFichero(jug1);
             Context context = getApplicationContext();
             CharSequence text = "¡Felicidades, lo has adivinado!";
             int duration = Toast.LENGTH_SHORT;
@@ -103,7 +113,16 @@ public class MainActivity extends AppCompatActivity {
         return name;
     }
 
-
+    private void crearFichero(Jugador jug) throws IOException {
+        try {
+            OutputStreamWriter osw = new OutputStreamWriter(openFileOutput("almacenarJugadors.txt",Context.MODE_APPEND));
+            osw.write(jug.getName() + "," + jug.getIntentos());
+            osw.append("\r\n");
+            osw.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
